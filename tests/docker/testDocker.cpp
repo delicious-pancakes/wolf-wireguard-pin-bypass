@@ -4,6 +4,7 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <core/docker.hpp>
+#include <docker/json_formatters.hpp>
 #include <rfl/toml.hpp>
 #include <runners/docker.hpp>
 #include <state/config.hpp>
@@ -12,7 +13,7 @@
 using Catch::Matchers::Contains;
 using Catch::Matchers::Equals;
 
-TEST_CASE("Docker API", "DOCKER") {
+TEST_CASE("Docker API", "[DOCKER]") {
   docker::init();
   docker::DockerAPI docker_api;
 
@@ -55,7 +56,7 @@ TEST_CASE("Docker API", "DOCKER") {
   REQUIRE(docker_api.remove_by_id(second_container->id));
 }
 
-TEST_CASE("Docker TOML", "DOCKER") {
+TEST_CASE("Docker TOML", "[DOCKER]") {
   docker::init();
   docker::DockerAPI docker_api;
 
@@ -102,4 +103,163 @@ TEST_CASE("Docker TOML", "DOCKER") {
                }));
   REQUIRE_THAT(container.env, Equals(std::vector<std::string>{"LOG_LEVEL=info"}));
   REQUIRE_THAT(container.base_create_json.value(), Equals("{'HostConfig': {}}"));
+}
+
+TEST_CASE("Parse nulls in json reply", "[DOCKER]") {
+  auto reply = R""""(
+{
+  "Id": "f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc",
+  "Created": "2024-10-23T03:15:27.327380595Z",
+  "Path": "tailscaled",
+  "Args": [],
+  "State": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 2656,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2024-10-23T12:20:44.086062876Z",
+    "FinishedAt": "2024-10-23T12:20:07.067144588Z"
+  },
+  "Image": "sha256:8841c6e652e3b9d1bc299b80d6cfce8dfc0f183305fa88605557812fcf0e1b4d",
+  "ResolvConfPath": "/var/lib/docker/containers/f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc/resolv.conf",
+  "HostnamePath": "/var/lib/docker/containers/f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc/hostname",
+  "HostsPath": "/var/lib/docker/containers/f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc/hosts",
+  "LogPath": "/var/lib/docker/containers/f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc/f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc-json.log",
+  "Name": "/tailscale-docker",
+  "RestartCount": 0,
+  "Driver": "overlay2",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "docker-default",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {}
+    },
+    "NetworkMode": "vpn-server_networks",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "unless-stopped",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": [
+      "net_admin",
+      "sys_module"
+    ],
+    "CapDrop": null,
+    "CgroupnsMode": "private",
+    "Dns": [],
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": [],
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": false,
+    "SecurityOpt": null,
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 0,
+    "NanoCpus": 0,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": null,
+    "BlkioDeviceReadBps": null,
+    "BlkioDeviceWriteBps": null,
+    "BlkioDeviceReadIOps": null,
+    "BlkioDeviceWriteIOps": null,
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": null,
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 0,
+    "MemorySwappiness": null,
+    "OomKillDisable": null,
+    "PidsLimit": null,
+    "Ulimits": null,
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0
+  },
+  "Mounts": [
+    {
+      "Type": "bind",
+      "Source": "/dev/net/tun",
+      "Destination": "/dev/net/tun",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/srv/mergerfs/mergerfs_data/user-data/docker-appdata/tailscale/tailscale_var_lib",
+      "Destination": "/var/lib",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": "rprivate"
+    }
+  ],
+  "Config": {
+    "Hostname": "OMV-tailscaleVPN",
+    "Domainname": "",
+    "User": "",
+    "AttachStdin": false,
+    "AttachStdout": true,
+    "AttachStderr": true,
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": null,
+    "Cmd": [
+      "tailscaled"
+    ],
+    "Image": "tailscale/tailscale:stable",
+    "Volumes": null,
+    "WorkingDir": "",
+    "Entrypoint": null,
+    "OnBuild": null
+  }
+}
+)"""";
+
+  auto json = utils::parse_json(reply);
+  auto parsed_container = boost::json::value_to<wolf::core::docker::Container>(json);
+
+  REQUIRE_THAT(parsed_container.id, Equals("f2eb121b3cf4dfa4e96502675c41b26d660934f324c5c57af9d9baa6730c81cc"));
+  REQUIRE(parsed_container.mounts.empty());
+  REQUIRE(parsed_container.devices.empty());
+  REQUIRE(parsed_container.env.empty());
+  REQUIRE(parsed_container.ports.empty());
 }

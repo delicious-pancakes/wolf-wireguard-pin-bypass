@@ -90,6 +90,8 @@ docker::Container tag_invoke(value_to_tag<docker::Container>, value const &jv) {
   case (utils::hash("dead")):
     status = docker::DEAD;
     break;
+  default:
+    status = docker::CREATED;
   }
 
   const auto &host_config = obj.at("HostConfig");
@@ -115,6 +117,11 @@ docker::Container tag_invoke(value_to_tag<docker::Container>, value const &jv) {
     devices = json::value_to<std::vector<docker::Device>>(host_config.at("Devices"));
   }
 
+  std::vector<std::string> env;
+  if (!obj.at("Config").at("Env").is_null()) { // This can be `null` in the APIs for some reason
+    env = json::value_to<std::vector<std::string>>(obj.at("Config").at("Env"));
+  }
+
   return docker::Container{.id = json::value_to<std::string>(obj.at("Id")),
                            .name = json::value_to<std::string>(obj.at("Name")),
                            .image = json::value_to<std::string>(obj.at("Config").at("Image")),
@@ -122,6 +129,6 @@ docker::Container tag_invoke(value_to_tag<docker::Container>, value const &jv) {
                            .ports = ports,
                            .mounts = mounts,
                            .devices = devices,
-                           .env = json::value_to<std::vector<std::string>>(obj.at("Config").at("Env"))};
+                           .env = env};
 }
 } // namespace boost::json
