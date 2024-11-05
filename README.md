@@ -40,7 +40,7 @@ Want to give it a spin? [Checkout our docs](https://games-on-whales.github.io/wo
 - [@zb140](https://github.com/zb140) for the constant help and support in [GOW](https://github.com/games-on-whales/gow)
 - [@loki-47-6F-64](https://github.com/loki-47-6F-64) for creating and
   sharing [Sunshine](https://github.com/loki-47-6F-64/sunshine)
-- [@ReenigneArcher](https://github.com/ReenigneArcher) for beying the first stargazer of the project and taking care of
+- [@ReenigneArcher](https://github.com/ReenigneArcher) for being the first stargazer of the project and taking care of
   keeping [Sunshine alive](https://github.com/LizardByte/Sunshine)
 - All the guys at the [Moonlight](https://moonlight-stream.org/) Discord channel, for the tireless help they provide to
   anyone
