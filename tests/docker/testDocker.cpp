@@ -15,7 +15,8 @@ using Catch::Matchers::Equals;
 
 TEST_CASE("Docker API", "[DOCKER]") {
   docker::init();
-  docker::DockerAPI docker_api;
+  auto docker_socket = utils::get_env("DOCKER_SOCKET_PATH", "/var/run/docker.sock");
+  docker::DockerAPI docker_api(docker_socket);
 
   docker::Container container = {
       .id = "",
