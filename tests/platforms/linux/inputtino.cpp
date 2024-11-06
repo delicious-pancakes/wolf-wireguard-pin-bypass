@@ -66,6 +66,8 @@ TEST_CASE("uinput - pen tablet", "[UINPUT]") {
   control::handle_input(session, {}, &packet);
 
   REQUIRE(session.pen_tablet->has_value()); // Should create a pen when a packet arrives
+  std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
   auto li = create_libinput_context(session.pen_tablet->value().get_nodes());
   auto event = get_event(li);
   REQUIRE(event);
@@ -140,9 +142,11 @@ TEST_CASE("uinput - touch screen", "[UINPUT]") {
 
   control::handle_input(session, {}, &packet); // Should create a touch screen when a packet arrives
   REQUIRE(session.touch_screen->has_value());
+  std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
   auto li = create_libinput_context(session.touch_screen->value().get_nodes());
   auto event = get_event(li);
+  REQUIRE(event);
   REQUIRE(libinput_event_get_type(event.get()) == LIBINPUT_EVENT_DEVICE_ADDED);
   REQUIRE(libinput_device_has_capability(libinput_event_get_device(event.get()), LIBINPUT_DEVICE_CAP_TOUCH));
 

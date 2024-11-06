@@ -28,11 +28,13 @@ static void LogHandler(libinput __attribute__((unused)) * libinput,
                        libinput_log_priority priority,
                        const char *format,
                        va_list args) {
-  if (priority == LIBINPUT_LOG_PRIORITY_DEBUG) {
-    char buf[512];
-    int n = vsnprintf(buf, sizeof(buf), format, args);
-    if (n > 0)
-      logs::log(logs::debug, "libinput: {}", buf);
+  char buf[512];
+  int n = vsnprintf(buf, sizeof(buf), format, args);
+  logs::severity_level severity = logs::severity_level::info;
+  if(priority == LIBINPUT_LOG_PRIORITY_DEBUG) severity = logs::severity_level::debug;
+  else if(priority == LIBINPUT_LOG_PRIORITY_ERROR) severity = logs::severity_level::error;
+  if (n > 0) {
+    logs::log(severity, "libinput: {}", buf);
   }
 }
 

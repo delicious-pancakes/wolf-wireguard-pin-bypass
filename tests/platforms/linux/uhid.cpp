@@ -26,7 +26,7 @@ TEST_CASE("Create PS5 pad with CONTROLLER_ARRIVAL", "[UHID]") {
   c_pkt.type = pkts::CONTROLLER_ARRIVAL;
 
   control::handle_input(session, {}, &c_pkt);
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
   auto joypad = session.joypads->load()->at(controller_number);
   std::vector<std::string> dev_nodes;

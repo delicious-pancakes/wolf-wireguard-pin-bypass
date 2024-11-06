@@ -116,3 +116,14 @@ Follow the steps outlined in https://www.intel.com/content/www/us/en/support/art
   *  Verify the logs for guc information.
 
 Note: If output doesn't contain guc details, then install the latest guc/huc firmware. Copy the https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915[firmware] to `/lib/firmware/i915/`, and reboot the system.
+
+
+== Permission error when using uhid
+
+Depending on your system configuration the `uhid` module is only loaded "on demand" (when accessing `/dev/uhid` the first time). +
+This can be easily fixed by adding `uhid` to `/etc/module` to load the module during boot:
+
+[source,bash]
+....
+echo 'uhid' | sudo tee /etc/modules-load.d/uhid.conf
+....
