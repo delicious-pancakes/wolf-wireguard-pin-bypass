@@ -86,6 +86,14 @@ struct Host {
   std::optional<std::string> mac_address;
 };
 
+enum class PAIR_PHASE {
+  NONE,
+  GETSERVERCERT,
+  CLIENTCHALLENGE,
+  SERVERCHALLENGERESP,
+  CLIENTPAIRINGSECRET
+};
+
 /**
  * Holds temporary results in order to achieve the multistep pairing process
  */
@@ -97,6 +105,11 @@ struct PairCache {
   std::optional<std::string> server_secret;
   std::optional<std::string> server_challenge;
   std::optional<std::string> client_hash;
+
+  /**
+   * @brief used as a security measure to prevent out of order calls
+   */
+  PAIR_PHASE last_phase = PAIR_PHASE::NONE;
 };
 
 using SessionsAtoms = std::shared_ptr<immer::atom<immer::vector<events::StreamSession>>>;

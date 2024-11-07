@@ -133,23 +133,33 @@ XML client_pair(const std::string &aes_key,
                 const std::string &client_public_cert_signature,
                 const std::string &client_cert_public_key) {
   XML resp;
-  resp.put("root.<xmlattr>.status_code", 200);
   auto digest_size = 256;
 
   auto pairing_secret = crypto::hex_to_str(client_pairing_secret, true);
+  if (pairing_secret.size() < digest_size) {
+    resp.put("root.paired", 0);
+    resp.put("root.<xmlattr>.status_code", 400);
+    resp.put("root.<xmlattr>.status_message", "Invalid pairing secret");
+    return resp;
+  }
   auto client_secret = pairing_secret.substr(0, 16);
   auto client_signature = pairing_secret.substr(16, digest_size);
 
   auto hash = crypto::hex_to_str(crypto::sha256(server_challenge + client_public_cert_signature + client_secret), true);
   if (hash != client_hash) {
     resp.put("root.paired", 0);
+    resp.put("root.<xmlattr>.status_code", 400);
+    resp.put("root.<xmlattr>.status_message", "Invalid client hash");
     return resp;
   }
 
   if (crypto::verify(client_secret, client_signature, client_cert_public_key)) {
     resp.put("root.paired", 1);
+    resp.put("root.<xmlattr>.status_code", 200);
   } else {
     resp.put("root.paired", 0);
+    resp.put("root.<xmlattr>.status_code", 400);
+    resp.put("root.<xmlattr>.status_message", "Invalid client signature");
   }
   return resp;
 }

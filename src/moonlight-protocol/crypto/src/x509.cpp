@@ -192,6 +192,9 @@ std::string get_pkey_content(pkey_ptr pkey) {
 
 std::string get_cert_public_key(x509_ptr cert) {
   auto pkey = X509_get_pubkey(cert.get());
+  if (!pkey) {
+    return "";
+  }
   return get_key_content(pkey_ptr(pkey, EVP_PKEY_free), false);
 }
 
