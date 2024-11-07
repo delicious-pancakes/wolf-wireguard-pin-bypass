@@ -41,7 +41,7 @@ template <typename Socket> struct RequestHandler {
 
 template <typename T> class HTTPServer {
 public:
-  HTTPServer(){};
+  HTTPServer() {};
 
   inline void add(const HTTPMethod &method, const std::string &path, const RequestHandler<T> &handler) {
     endpoints_[{method, path}] = handler;
