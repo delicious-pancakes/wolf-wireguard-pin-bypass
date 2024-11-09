@@ -88,8 +88,8 @@ bool encrypt_and_send(std::string_view payload,
                       std::size_t session_id) {
   auto clients = connected_clients.load();
   auto enet_peer = clients->find(session_id);
-  if (enet_peer == nullptr) {
-    logs::log(logs::debug, "[ENET] Unable to find enet client {}", session_id);
+  if (!enet_peer || payload == nullptr || aes_key == nullptr) {
+    logs::log(logs::debug, "[ENET] Unable to send encrypted packed {}", session_id);
     return false;
   } else {
     auto encrypted = control::encrypt_packet(aes_key, 0, payload); // TODO: seq?
