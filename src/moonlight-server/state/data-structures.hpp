@@ -188,9 +188,11 @@ const static immer::array<audio::AudioMode> AUDIO_CONFIGURATIONS = {
 static const audio::AudioMode &get_audio_mode(int channels, bool high_quality) {
   int base_index = 0;
   if (channels == 6) {
-    base_index = 2;
+    base_index = 1;
   } else if (channels == 8) {
-    base_index = 4;
+    base_index = 2;
+  } else {
+    logs::log(logs::warning, "Moonlight requested an impossible number of channels: {}", channels);
   }
 
   return AUDIO_CONFIGURATIONS[base_index]; // TODO: add high quality settings, it sounds bad if we can't change the
