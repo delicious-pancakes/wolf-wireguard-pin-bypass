@@ -88,7 +88,7 @@ bool encrypt_and_send(std::string_view payload,
                       std::size_t session_id) {
   auto clients = connected_clients.load();
   auto enet_peer = clients->find(session_id);
-  if (!enet_peer || payload == nullptr || aes_key == nullptr) {
+  if (!enet_peer) {
     logs::log(logs::debug, "[ENET] Unable to send encrypted packed {}", session_id);
     return false;
   } else {
@@ -114,9 +114,11 @@ void run_control(int port,
   auto stop_ev = event_bus->register_handler<immer::box<StopStreamEvent>>(
       [&connected_clients, &running_sessions](const immer::box<StopStreamEvent> &ev) {
         auto client_session = state::get_session_by_id(running_sessions->load(), ev->session_id);
-        auto terminate_pkt = ControlTerminatePacket{};
-        std::string plaintext = {(char *)&terminate_pkt, sizeof(terminate_pkt)};
-        encrypt_and_send(plaintext, client_session->aes_key, connected_clients, ev->session_id);
+        if (client_session) {
+          auto terminate_pkt = ControlTerminatePacket{};
+          std::string plaintext = {(char *)&terminate_pkt, sizeof(terminate_pkt)};
+          encrypt_and_send(plaintext, client_session->aes_key, connected_clients, ev->session_id);
+        }
       });
 
   while (true) {
