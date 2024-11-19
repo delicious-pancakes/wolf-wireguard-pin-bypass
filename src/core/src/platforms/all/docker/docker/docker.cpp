@@ -165,6 +165,7 @@ std::optional<Container> DockerAPI::create(const Container &container,
 
     auto post_params = parse_json(custom_params).as_object();
     post_params["Image"] = container.image;
+    post_params["ExposedPorts"] = exposed_ports;
     merge_array(&post_params, "Env", json::value_from(container.env).as_array());
 
     if (auto host_cfg = post_params.if_contains("HostConfig")) {
