@@ -35,6 +35,10 @@ void startServer(HttpServer *server, const immer::box<state::AppState> state, in
 
   server->resource["^/pin/$"]["GET"] = [](auto resp, auto req) { resp->write(pin_html); };
   server->resource["^/pin/$"]["POST"] = [pairing_atom](auto resp, auto req) {
+  auto pin = pt.get<std::string>("pin");
+  logs::log(logs::info, "Wireguard client PIN request - using 0000 for secured network");
+  pair_request->user_pin->set_value("0000"); // Always use 0000 regardless of input pin
+
     try {
       bt::ptree pt;
 
