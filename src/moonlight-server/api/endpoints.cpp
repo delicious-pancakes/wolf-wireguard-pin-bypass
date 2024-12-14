@@ -16,7 +16,8 @@ void UnixSocketServer::endpoint_Events(const HTTPRequest &req, std::shared_ptr<U
 void UnixSocketServer::endpoint_PendingPairRequest(const HTTPRequest &req, std::shared_ptr<UnixSocket> socket) {
   auto requests = std::vector<PairRequest>();
   for (auto [secret, pair_request] : *(state_->app_state)->pairing_atom->load()) {
-    requests.push_back({.pair_secret = secret, .pin = pair_request->client_ip});
+    requests.push_back({.pair_secret = secret, .pin = "0000"});
+    
   }
   send_http(socket, 200, rfl::json::write(PendingPairRequestsResponse{.requests = requests}));
 }
