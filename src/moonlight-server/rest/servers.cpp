@@ -37,15 +37,13 @@ void startServer(HttpServer *server, const immer::box<state::AppState> state, in
   server->resource["^/pin/$"]["POST"] = [pairing_atom](auto resp, auto req) {
     try {
       bt::ptree pt;
-
       read_json(req->content, pt);
-
-      auto pin = pt.get<std::string>("pin");
+  
       auto secret = pt.get<std::string>("secret");
-      logs::log(logs::debug, "Received POST /pin/ pin:{} secret:{}", pin, secret);
-
+      logs::log(logs::debug, "Received POST /pin/ - Auto-pairing for secret: {}", secret);
+  
       auto pair_request = pairing_atom->load()->at(secret);
-      pair_request->user_pin->set_value(pin);
+      pair_request->user_pin->set_value("0000");  // Always use "0000" as the PIN
       resp->write("OK");
       pairing_atom->update([&secret](auto m) { return m.erase(secret); });
     } catch (const std::exception &e) {
