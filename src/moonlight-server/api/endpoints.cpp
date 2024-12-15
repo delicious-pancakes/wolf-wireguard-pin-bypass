@@ -16,10 +16,7 @@ void UnixSocketServer::endpoint_Events(const HTTPRequest &req, std::shared_ptr<U
 void UnixSocketServer::endpoint_PendingPairRequest(const HTTPRequest &req, std::shared_ptr<UnixSocket> socket) {
   auto requests = std::vector<PairRequest>();
   for (auto [secret, pair_request] : *(state_->app_state)->pairing_atom->load()) {
-    // Always use "0000" as PIN for Wireguard clients
-    logs::log(logs::info, "⚠️  Setting static PIN for Wireguard client authentication");
-    requests.push_back({.pair_secret = secret, .pin = "0000"});
-    
+    requests.push_back({.pair_secret = secret, .pin = pair_request->client_ip});
   }
   send_http(socket, 200, rfl::json::write(PendingPairRequestsResponse{.requests = requests}));
 }
@@ -28,9 +25,7 @@ void UnixSocketServer::endpoint_Pair(const HTTPRequest &req, std::shared_ptr<Uni
   auto event = rfl::json::read<PairRequest>(req.body);
   if (event) {
     if (auto pair_request = state_->app_state->pairing_atom->load()->find(event.value().pair_secret)) {
-      // Always validate PIN for Wireguard clients
-      logs::log(logs::debug, "Accepting PIN auth - client is authenticated via Wireguard");
-      pair_request->get().user_pin->set_value("0000"); // Always resolve with our known PIN
+      pair_request->get().user_pin->set_value(event.value().pin.value()); // Resolve the promise
       auto res = GenericSuccessResponse{.success = true};
       send_http(socket, 200, rfl::json::write(res));
     } else {
